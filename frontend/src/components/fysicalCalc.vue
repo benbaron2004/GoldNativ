@@ -13,6 +13,12 @@
       <p>זמן ההמראה: {{ results.takeoffTime }} שניות</p>
       <p v-if="results.overweight">משקל עודף: {{ results.overweight }} ק"ג</p>
     </div>
+
+    <div class="datePicker">
+      <h4>הכנס תאריך לביצוע המשימה</h4>
+      <b-form-datepicker v-model="dateValue" class="mb-2" placeholder="לא נבחר תאריך"></b-form-datepicker>
+      <b-button @click="fetchWeather">הצג</b-button>
+    </div>
     <div v-if="takeoffHours.length > 0">
       <h3>שעות המראה אפשריות בתאריך ובמיקום הנבחר</h3>
       <b-list-group class="list" v-for="time in takeoffHours" :key="time">
@@ -20,7 +26,11 @@
       </b-list-group>
     </div>
     <div v-else>
-      <h3>לא ניתן לבצע את המשימה בזמן ובמיקום הנבחר</h3>
+      <h3>לא ניתן לבצע את המשימה</h3>
+      <h4>הטמפרטורה בזמן ובמיקום הנבחר</h4>
+      <b-list-group class="list" v-for="temp in temperatures" :key="temp">
+        <b-list-group-item>{{ temp }}</b-list-group-item>
+      </b-list-group>
     </div>
   </div>
 </template>
@@ -34,10 +44,9 @@ export default {
       loadMass: "",
       results: {},
       takeoffHours: [],
+      temperatures: [],
+      dateValue: "",
     };
-  },
-  created() {
-    this.fetchWeather();
   },
   methods: {
     async calculateResults() {
@@ -49,18 +58,22 @@ export default {
     },
     async fetchWeather() {
       try {
-        const weatherData = (await getWeather()).data;
+        const weatherData = (await getWeather(this.dateValue)).data;
         this.takeoffHours = this.filterWeather(weatherData);
       } catch (error) {
         console.error("Error getting weather:", error);
       }
     },
     filterWeather(weatherData) {
-      const temperatures = weatherData.hourly.temperature_2m;
-      return weatherData.hourly.time.filter((time, index) => {
-        const hourlyTemp = temperatures[index];
-        return hourlyTemp >= 15 && hourlyTemp <= 30;
-      });
+      const hours = [];
+      this.temperatures = weatherData.hourly.temperature_2m;
+      for (let index = 0; index < this.temperatures.length; index++) {
+        if (this.temperatures[index] >= 15 && this.temperatures[index] <= 30) {
+          hours.push(weatherData.hourly.time[index]);
+        }
+      }
+
+      return hours;
     },
   },
 };
@@ -68,6 +81,7 @@ export default {
 
 <style scoped>
 .input,
+.datePicker,
 .list {
   width: 20%;
   text-align: center;
