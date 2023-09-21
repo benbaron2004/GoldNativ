@@ -3,6 +3,6 @@ import { getAllCalculationsHandler } from "../controllers/calculatorController.j
 
 const router = express.Router();
 
-router.get("/:loadMass", getAllCalculationsHandler);
+router.get("/:loadmass", getAllCalculationsHandler);
 
 export default router;

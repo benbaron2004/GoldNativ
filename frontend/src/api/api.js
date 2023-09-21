@@ -12,9 +12,9 @@ export const getCalculations = async (loadmass) => {
   }
 };
 
-export const getWeather = async () => {
+export const getWeather = async (dateValue) => {
   try {
-    return await axios.get(`${SERVER_URL}/weather`);
+    return await axios.get(`${SERVER_URL}/weather/${dateValue}`);
   } catch (error) {
     console.error("Error fetching weather:", error);
     throw new Error("Error fetching waether");

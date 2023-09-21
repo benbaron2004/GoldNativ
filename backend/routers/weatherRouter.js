@@ -3,6 +3,6 @@ import { getWeatherHandler } from "../controllers/weatherController.js";
 
 const router = express.Router();
 
-router.get("/", getWeatherHandler);
+router.get("/:dateValue", getWeatherHandler);
 
 export default router;

@@ -6,20 +6,24 @@
       v-model="loadMass"
       placeholder="הכנס מסת מטען"
     ></b-form-input>
-    <b-button @click="calculateResults" style="margin-top: 20px">חשב</b-button>
+    <b-button @click="calculateResults">חשב</b-button>
 
-    <div v-if="Object.keys(results).length > 0">
-      <p>מרחק ההמראה: {{ results.takeoffDistance }} מטרים</p>
-      <p>זמן ההמראה: {{ results.takeoffTime }} שניות</p>
-      <p v-if="results.overweight">משקל עודף: {{ results.overweight }} ק"ג</p>
+    <div v-if="Object.keys(fhysicalResults).length > 0">
+      <p>מרחק ההמראה: {{ fhysicalResults.takeoffDistance }} מטרים</p>
+      <p>זמן ההמראה: {{ fhysicalResults.takeoffTime }} שניות</p>
+      <p v-if="fhysicalResults.overweight">משקל עודף: {{ fhysicalResults.overweight }} ק"ג</p>
     </div>
 
     <div class="datePicker">
       <h4>הכנס תאריך לביצוע המשימה</h4>
-      <b-form-datepicker v-model="dateValue" class="mb-2" placeholder="לא נבחר תאריך"></b-form-datepicker>
+      <b-form-datepicker
+        v-model="dateValue"
+        class="mb-2"
+        placeholder="לא נבחר תאריך"
+      ></b-form-datepicker>
       <b-button @click="fetchWeather">הצג</b-button>
     </div>
-    <div v-if="takeoffHours.length > 0">
+    <div v-if="isTakeoffHoursAvailable">
       <h3>שעות המראה אפשריות בתאריך ובמיקום הנבחר</h3>
       <b-list-group class="list" v-for="time in takeoffHours" :key="time">
         <b-list-group-item>{{ time.slice(11) }}</b-list-group-item>
@@ -42,7 +46,7 @@ export default {
   data() {
     return {
       loadMass: "",
-      results: {},
+      fhysicalResults: {},
       takeoffHours: [],
       temperatures: [],
       dateValue: "",
@@ -51,7 +55,7 @@ export default {
   methods: {
     async calculateResults() {
       try {
-        this.results = await getCalculations(this.loadMass);
+        this.fhysicalResults = await getCalculations(this.loadMass);
       } catch (error) {
         console.error("error calculating:", error);
       }
@@ -67,6 +71,7 @@ export default {
     filterWeather(weatherData) {
       const hours = [];
       this.temperatures = weatherData.hourly.temperature_2m;
+
       for (let index = 0; index < this.temperatures.length; index++) {
         if (this.temperatures[index] >= 15 && this.temperatures[index] <= 30) {
           hours.push(weatherData.hourly.time[index]);
@@ -74,6 +79,9 @@ export default {
       }
 
       return hours;
+    },
+    isTakeoffHoursAvailable() {
+      return this.takeoffHours.length > 0;
     },
   },
 };
@@ -86,5 +94,8 @@ export default {
   width: 20%;
   text-align: center;
   margin: auto;
+}
+button {
+  margin-top: 20px;
 }
 </style>

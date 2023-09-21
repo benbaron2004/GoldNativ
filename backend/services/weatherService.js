@@ -1,7 +1,7 @@
 import { getWeatherData } from "../repositories/weatherRepository.js";
 
-const getWeather = async () => {
-  const response = await getWeatherData();
+const getWeather = async (dateValue) => {
+  const response = await getWeatherData(dateValue);
 
   return response.data;
 };
